@@ -1,5 +1,7 @@
 *.pt
 .vscode
+runs/detect/tests/*
+runs/pose/tests/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
