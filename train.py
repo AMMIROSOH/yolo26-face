@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Finetune YOLO26 for face detection + 5 facial keypoints."
     )
-    parser.add_argument("--data", type=Path, default=Path("dataset/data.yml"))
+    parser.add_argument("--data", type=Path, help="path of dataset .yml file.")
     parser.add_argument(
         "--weights",
         type=Path,
@@ -133,9 +133,6 @@ def validate_dataset_layout(data_yaml: Path, label_check_files: int) -> None:
 
 
 def build_model(weights: Path, pose_model: str) -> YOLO:
-    if not weights.exists():
-        raise FileNotFoundError(f"Missing checkpoint: {weights}")
-
     pretrained = YOLO(str(weights))
     if pretrained.task == "pose":
         print(f"[model] Loaded pose checkpoint directly: {weights}")
