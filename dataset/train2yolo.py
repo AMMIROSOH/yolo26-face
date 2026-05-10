@@ -149,7 +149,8 @@ def convert_wider_to_yolo_pose(label_txt_path, save_path):
                     else:
                         nkx = min(max(kx / float(width), 0.0), 1.0)
                         nky = min(max(ky / float(height), 0.0), 1.0)
-                        kps_out.extend([nkx, nky, int(kv)])
+                        # k visibility in wider face is (0, 1) but in yolo its (0, 1, 2)
+                        kps_out.extend([nkx, nky, int(kv) + 1])
 
                 # compose line: 1 class + 4 bbox + 15 kp entries = 20 numbers
                 numbers = [0, cx, cy, nw, nh] + kps_out
