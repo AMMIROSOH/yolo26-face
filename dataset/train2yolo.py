@@ -143,12 +143,13 @@ def convert_wider_to_yolo_pose(label_txt_path, save_path):
                 for i in range(0, 15, 3):
                     kx = raw_kps[i]
                     ky = raw_kps[i + 1]
+                    kv = raw_kps[i + 2]
                     if kx < 0 or ky < 0:
                         kps_out.extend([0.0, 0.0, 0])
                     else:
                         nkx = min(max(kx / float(width), 0.0), 1.0)
                         nky = min(max(ky / float(height), 0.0), 1.0)
-                        kps_out.extend([nkx, nky, 2])
+                        kps_out.extend([nkx, nky, int(kv)])
 
                 # compose line: 1 class + 4 bbox + 15 kp entries = 20 numbers
                 numbers = [0, cx, cy, nw, nh] + kps_out
