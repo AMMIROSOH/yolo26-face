@@ -1,4 +1,4 @@
-*.pt
+/*.pt
 .vscode
 runs/detect/tests/*
 runs/pose/tests/*
