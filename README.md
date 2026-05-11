@@ -1,6 +1,6 @@
-# YOLO26 Face
+# YOLO26 Face 😎
 
-Reference repository for training and evaluating **YOLO26** on face detection with **5 facial keypoints** using a WIDER Face style dataset layout.
+Reference repository for training and evaluating **YOLO26** on face + kps detection with **5 facial keypoints** using a WIDER Face style dataset layout. It is meant to be easy to clone, train, test, and extend.
 
 This repo is intended to be a clean public starting point for:
 
@@ -9,7 +9,15 @@ This repo is intended to be a clean public starting point for:
 - reproducing baseline training runs
 - publishing training curves and checkpoints
 
-## What This Repo Contains
+## ⭐ Highlights
+
+- 📦 Simple training entrypoint for YOLO26 face + 5 keypoints
+- 🧩 WIDER Face conversion scripts for train and val splits
+- 📈 Included baseline `yolo26n` training artifacts and plots
+- 🎯 Ready for adding `yolo26s` results next
+- 🤗 Public Hugging Face model page for the current nano checkpoint
+
+## 📁 What This Repo Contains
 
 - [`train.py`](train.py): main training entrypoint for YOLO26 face + keypoints
 - [`predict.py`](predict.py): simple inference script for images, folders, videos, or webcam streams
@@ -18,7 +26,7 @@ This repo is intended to be a clean public starting point for:
 - [`dataset/data.yaml.example`](dataset/data.yaml.example): dataset config template
 - [`runs/pose/face/yolo26n`](runs/pose/face/yolo26n): current `yolo26n` training artifacts
 
-## Task Setup
+## 🎯 Task Setup
 
 - Task: face detection + 5 facial keypoints
 - Class count: `1`
@@ -32,7 +40,7 @@ class cx cy w h kp1_x kp1_y kp1_v kp2_x kp2_y kp2_v kp3_x kp3_y kp3_v kp4_x kp4_
 
 `train.py` validates this format before training starts.
 
-## Dataset
+## 🗂 Dataset
 
 This repo is built around a **WIDER Face style dataset** converted into Ultralytics YOLO pose labels.
 
@@ -59,7 +67,7 @@ copy dataset\data.yaml.example dataset\data.yaml
 
 Then update the paths inside `dataset/data.yaml` to match your local dataset.
 
-## Installation
+## 🛠 Installation
 
 Create a fresh environment and install dependencies:
 
@@ -71,7 +79,7 @@ pip install -r requirements.txt
 
 If you already have a CUDA-enabled PyTorch install, keep your current Torch build and install the remaining packages from `requirements.txt`.
 
-## WIDER Face Conversion
+## 🔄 WIDER Face Conversion
 
 ### Train split
 
@@ -108,7 +116,7 @@ D:\Datasets\WIDERFACE\
 
 Note: the current validation converter writes face boxes and fills the 5 keypoints with `0 0 0` because standard WIDER Face validation annotations do not provide facial landmarks. That means pose validation metrics are not meaningful unless your validation set includes real landmark labels.
 
-## Training
+## 🚀 Training
 
 ### Baseline `yolo26n`
 
@@ -128,7 +136,7 @@ python train.py --data dataset/data.yaml --weights yolo26s.pt --epochs 100 --img
 python train.py --data dataset/data.yaml --weights yolo26n.pt --final-val
 ```
 
-## Inference
+## 🔍 Inference
 
 Run inference on an image, folder, video, or webcam:
 
@@ -144,7 +152,7 @@ python predict.py --weights runs/pose/face/yolo26n/weights/best.pt --source vide
 python predict.py --weights runs/pose/face/yolo26n/weights/best.pt --source 0
 ```
 
-## Current Results
+## 📊 Current Results
 
 ### `yolo26n`
 
@@ -172,6 +180,10 @@ Artifacts:
 - Confusion matrix: [`runs/pose/face/yolo26n/confusion_matrix.png`](runs/pose/face/yolo26n/confusion_matrix.png)
 - Best checkpoint: [`runs/pose/face/yolo26n/weights/best.pt`](runs/pose/face/yolo26n/weights/best.pt)
 
+🤗 Hugging Face model:
+
+- [`ammirosoh/yolo26n-face`](https://huggingface.co/ammirosoh/yolo26n-face)
+
 #### Training Curves
 
 ![YOLO26n Training Curves](runs/pose/face/yolo26n/results.png)
@@ -194,14 +206,14 @@ Recommended section to add later:
 | --- | ---: | ---: | ---: | ---: |
 | `yolo26s` | pending | pending | pending | pending |
 
-## Reproducibility Notes
+## 🧪 Reproducibility Notes
 
 - The current committed run metadata points to a local dataset path: `D:\Datasets\WIDER_yolo\data.yml`
 - Public users should replace this with their own local `dataset/data.yaml`
 - Root `.pt` files are ignored by default in [`.gitignore`](.gitignore)
 - Large generated `runs/` artifacts should usually not be fully committed, except selected plots or published checkpoints if you explicitly want them in the repo
 
-## Suggested Public Repo Cleanup Before Publishing
+## 🌍 Suggested Public Repo Cleanup Before Publishing
 
 - keep `train.py`, `predict.py`, conversion scripts, and docs
 - keep selected result plots for `yolo26n`
@@ -209,7 +221,16 @@ Recommended section to add later:
 - publish final metrics for `yolo26s` once training finishes
 - add a license if you want external reuse
 
-## Citation / Upstream
+## ✅ Recommended Next Steps
+
+1. Finish the full `yolo26s` training run and add its final metrics table.
+2. Add 3 to 5 real demo inference images or one short GIF/video to the README.
+3. Publish a release with the exact checkpoint files you want users to download.
+4. Add a `LICENSE` file so reuse terms are explicit.
+5. Add a short comparison table against `yolov8n-face` and `yolov11n-face` if those are part of your benchmark story.
+6. If you want valid landmark metrics, build or use a validation split that includes real 5-point facial landmarks.
+
+## 🔗 Citation / Upstream
 
 If you publish this repo, reference:
 
