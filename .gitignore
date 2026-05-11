@@ -1,5 +1,7 @@
 /*.pt
 .vscode
+dataset/data.yaml
+results/
 runs/detect/tests/*
 runs/pose/tests/*
 # Byte-compiled / optimized / DLL files

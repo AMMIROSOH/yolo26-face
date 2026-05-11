@@ -1,0 +1,6 @@
+train: C:/Users/your-user/path/to/WIDER-yolo/train
+val: C:/Users/your-user/path/to/WIDER-yolo/val
+
+nc: 1
+names: ['face']
+kpt_shape: [5, 3]
