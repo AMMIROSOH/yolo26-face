@@ -79,6 +79,114 @@ pip install -r requirements.txt
 
 If you already have a CUDA-enabled PyTorch install, keep your current Torch build and install the remaining packages from `requirements.txt`.
 
+## 🐳 Docker Training Image
+
+This repo now includes a GPU-ready [`Dockerfile`](Dockerfile) for training on Linux, Docker, and Runpod.
+
+What the image does:
+
+- bundles the project code
+- bundles `yolo26n.pt` as the default starter checkpoint
+- installs PyTorch, Ultralytics, OpenCV, and Hugging Face Hub
+- starts through [`docker/train-runpod.sh`](docker/train-runpod.sh)
+- auto-detects a WIDER-YOLO dataset under common Runpod mount paths
+
+### Runpod dataset path handling
+
+The container supports both common Runpod storage layouts:
+
+- Runpod **Pods**: network volumes are typically mounted at `/workspace`
+- Runpod **Serverless**: network volumes are mounted at `/runpod-volume`
+
+The helper script checks these dataset roots automatically:
+
+```text
+/runpod-volume/WIDER-yolo
+/runpod-volume/datasets/WIDER-yolo
+/workspace/WIDER-yolo
+/workspace/datasets/WIDER-yolo
+```
+
+You can always override detection with:
+
+```bash
+YOLO_FACE_DATA_ROOT=/your/dataset/root
+```
+
+### Build the image
+
+```bash
+docker build -t yolo26-face:latest .
+```
+
+### Quick local test
+
+If your local converted dataset is at `./dataset`:
+
+```bash
+docker run --rm --gpus all ^
+  -e YOLO_FACE_DATA_ROOT=/workspace/dataset ^
+  -v ${PWD}:/workspace ^
+  yolo26-face:latest ^
+  --epochs 1 --batch 2 --workers 2 --device 0 --name smoke_test --exist-ok
+```
+
+Linux/macOS version:
+
+```bash
+docker run --rm --gpus all \
+  -e YOLO_FACE_DATA_ROOT=/workspace/dataset \
+  -v "$(pwd)":/workspace \
+  yolo26-face:latest \
+  --epochs 1 --batch 2 --workers 2 --device 0 --name smoke_test --exist-ok
+```
+
+### Run on Runpod
+
+If your uploaded dataset lives on the attached network volume as `/workspace/WIDER-yolo`:
+
+```bash
+docker run --rm --gpus all \
+  -v /workspace:/workspace \
+  yolo26-face:latest \
+  --epochs 100 --imgsz 640 --batch 16 --cache --device 0 --name yolo26n_runpod --exist-ok
+```
+
+If you want to point to a different mounted location explicitly:
+
+```bash
+docker run --rm --gpus all \
+  -e YOLO_FACE_DATA_ROOT=/workspace/datasets/WIDER-yolo \
+  -e YOLO_FACE_WEIGHTS=/app/yolo26n.pt \
+  -v /workspace:/workspace \
+  yolo26-face:latest \
+  --epochs 100 --imgsz 640 --batch 16 --cache --device 0 --name yolo26n_runpod --exist-ok
+```
+
+### Inspect the container before training
+
+Show the training help from the image:
+
+```bash
+docker run --rm yolo26-face:latest
+```
+
+Open a shell instead of launching training:
+
+```bash
+docker run --rm -it --entrypoint bash yolo26-face:latest
+```
+
+### Push to Docker Hub
+
+Replace `your-dockerhub-user` with your Docker Hub username:
+
+```bash
+docker tag yolo26-face:latest your-dockerhub-user/yolo26-face:latest
+docker login
+docker push your-dockerhub-user/yolo26-face:latest
+```
+
 ## 🔄 WIDER Face Conversion
 
 ### Train split
@@ -151,6 +259,42 @@ python predict.py --weights runs/pose/face/yolo26n/weights/best.pt --source asse
 python predict.py --weights runs/pose/face/yolo26n/weights/best.pt --source video.mp4
 python predict.py --weights runs/pose/face/yolo26n/weights/best.pt --source 0
 ```
+
+## 🤗 Upload WIDER-YOLO To Hugging Face
+
+Use [`scripts/upload_dataset_to_hf.py`](scripts/upload_dataset_to_hf.py) to upload your converted dataset folder as a Hugging Face **dataset** repository.
+
+Install dependencies if needed:
+
+```bash
+pip install -r requirements.txt
+```
+
+Login once:
+
+```bash
+huggingface-cli login
+```
+
+Upload a local dataset folder:
+
+```bash
+python scripts/upload_dataset_to_hf.py --local-dir dataset --repo-id your-hf-user/WIDER-yolo
+```
+
+Upload directly from a Runpod-mounted dataset path:
+
+```bash
+python scripts/upload_dataset_to_hf.py --local-dir /workspace/WIDER-yolo --repo-id your-hf-user/WIDER-yolo
+```
+
+Create a private dataset repo:
+
+```bash
+python scripts/upload_dataset_to_hf.py --local-dir /workspace/WIDER-yolo --repo-id your-hf-user/WIDER-yolo --private
+```
+
+The script uses `upload_large_folder` by default because it is more resilient for larger uploads.
 
 ## 📊 Current Results
 
