@@ -11,7 +11,7 @@ save: true
 save_period: -1
 cache: true
 device: '0'
-workers: 2
+workers: 1
 project: C:\Users\PARATCO\Projects\yolo26-face\runs\pose\face
 name: yolo26s
 exist_ok: true
