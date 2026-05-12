@@ -144,9 +144,23 @@ def build_model(weights: Path, pose_model: str) -> YOLO:
             f"Unsupported checkpoint task '{pretrained.task}'. Provide a detect or pose checkpoint."
         )
 
-    model = YOLO(pose_model).load(str(weights))
+    detected_scale = pretrained.model.yaml.get("scale")
+    resolved_pose_model = pose_model
+    if detected_scale:
+        resolved_pose_model = f"yolo26{detected_scale}-pose.yaml"
+        print(
+            f"[model] Detected scale '{detected_scale}' from {weights.name}; "
+            f"using matching pose config {resolved_pose_model}"
+        )
+    else:
+        print(
+            f"[model] Could not detect model scale from {weights.name}; "
+            f"falling back to pose config {resolved_pose_model}"
+        )
+
+    model = YOLO(resolved_pose_model).load(str(weights))
     print(
-        f"[model] Built pose model from {pose_model} and transferred weights from detect checkpoint {weights}"
+        f"[model] Built pose model from {resolved_pose_model} and transferred weights from detect checkpoint {weights}"
     )
     return model
 
