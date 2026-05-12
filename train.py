@@ -44,7 +44,8 @@ def parse_args() -> argparse.Namespace:
         default=Path("results/face"),
         help="Export final public plots here using the same filenames as akanametov/yolo-face.",
     )
-    parser.add_argument("--lr0", type=float, default=5e-4)
+    # 5e-4 for nano models
+    parser.add_argument("--lr0", type=float, default=0.00038)
     parser.add_argument("--patience", type=int, default=30)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--fraction", type=float, default=1.0)
