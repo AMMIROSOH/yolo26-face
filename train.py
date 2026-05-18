@@ -184,6 +184,16 @@ def clean_results_csv(results_csv: Path) -> None:
         writer.writerows(rows)
 
 
+def safe_plot_results(results_csv: Path) -> None:
+    try:
+        plot_results(file=str(results_csv))
+    except Exception as exc:
+        print(
+            f"[warn] Could not generate summary plots from {results_csv.name}: {exc}. "
+            "Training weights and metrics were still saved."
+        )
+
+
 def resolve_public_file(primary_dir: Path, train_dir: Path, candidates: list[str]) -> Path | None:
     for directory in (primary_dir, train_dir):
         for name in candidates:
@@ -205,7 +215,7 @@ def export_artifacts(
     results_csv = train_dir / "results.csv"
     if results_csv.is_file():
         clean_results_csv(results_csv)
-        plot_results(file=str(results_csv))
+        safe_plot_results(results_csv)
 
     export_map = {
         "P_curve.png": ["P_curve.png", "BoxP_curve.png"],
