@@ -57,21 +57,27 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def patch_batch_dynamic(onnx_path: Path) -> None:
+def patch_dynamic_batch_static_spatial(onnx_path: Path, imgsz: int) -> None:
     model = onnx.load(str(onnx_path))
 
-    def make_batch_dynamic(value_info) -> None:
+    def patch_value_info(value_info) -> None:
         tensor_type = value_info.type.tensor_type
         if not tensor_type.HasField("shape") or not tensor_type.shape.dim:
             return
-        batch_dim = tensor_type.shape.dim[0]
-        batch_dim.ClearField("dim_value")
-        batch_dim.dim_param = "batch"
+        dims = tensor_type.shape.dim
+        if len(dims) >= 1:
+            dims[0].ClearField("dim_value")
+            dims[0].dim_param = "batch"
+        if len(dims) >= 4:
+            dims[2].ClearField("dim_param")
+            dims[2].dim_value = imgsz
+            dims[3].ClearField("dim_param")
+            dims[3].dim_value = imgsz
 
     for value_info in model.graph.input:
-        make_batch_dynamic(value_info)
+        patch_value_info(value_info)
     for value_info in model.graph.output:
-        make_batch_dynamic(value_info)
+        patch_value_info(value_info)
 
     onnx.save(model, str(onnx_path))
 
@@ -92,14 +98,14 @@ def main() -> None:
         batch=args.batch,
         device=args.device,
         opset=args.opset,
-        dynamic=args.dynamic,
+        dynamic=args.dynamic or args.dynamic_batch,
         half=args.half,
         simplify=args.simplify,
     )
     exported_path = Path(exported_path).resolve()
 
     if args.dynamic_batch:
-        patch_batch_dynamic(exported_path)
+        patch_dynamic_batch_static_spatial(exported_path, args.imgsz)
         print(
             f"[onnx] Patched batch dimension to dynamic while keeping spatial size fixed at {args.imgsz}x{args.imgsz}"
         )
