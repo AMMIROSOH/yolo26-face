@@ -283,7 +283,7 @@ def main() -> None:
     if args.final_val:
         print(f"[val] Running validation from: {best_weights}")
         best_model = YOLO(str(best_weights))
-        best_model.val(
+        val_metrics = best_model.val(
             data=str(args.data),
             split="val",
             imgsz=args.imgsz,
@@ -295,7 +295,7 @@ def main() -> None:
             name=f"{args.name}_val",
             exist_ok=True,
         )
-        val_dir = Path(best_model.validator.save_dir).resolve()
+        val_dir = Path(getattr(val_metrics, "save_dir", args.project / f"{args.name}_val")).resolve()
 
     artifacts = export_artifacts(train_dir, args.results_dir, val_dir)
 
